@@ -1,5 +1,7 @@
 import json
 from typing import List
+from pylspclient import lsp_client
+from sansio_lsp_client import client
 
 from pylspclient import lsp_structs, LspClient
 # TODO: Port to sansio-lsp
