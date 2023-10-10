@@ -92,8 +92,8 @@ class IOThreadedServer:
             msg.reply([WorkspaceFolder(uri=self.lsp_client.root_uri, name="Root")])
 
         else:
-            print(f"Can't autoreply: {type(msg)}")
-
+            #print(f"Can't autoreply: {type(msg)}")
+            pass
     def wait_for_message_of_type(self, type_, timeout=5):
         end_time = time.monotonic() + timeout
         while time.monotonic() < end_time:
