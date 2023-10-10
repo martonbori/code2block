@@ -3,3 +3,6 @@
 /workspace.xml
 /.idea
 __pycache__
+src/code2block/gui/js/blocks.js
+src/code2block/gui/js/code_generators.js
+src/code2block/gui/js/toolbox_data.js
