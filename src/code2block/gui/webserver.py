@@ -1,7 +1,7 @@
 import json
 import os
 
-from flask import Flask, abort
+from flask import Flask, abort, request
 
 from src.code2block.classes.app import App
 
@@ -27,8 +27,9 @@ def get_js_file(subpath):
     else:
         return js_file
 
-@webapp.get("/add_module?module_name=<module_name>")
-def add_module(module_name):
+@webapp.post("/add_module")
+def add_module():
+    module_name = request.form["module_name"]
     blocks_data = app.generate_blocks(module_name)
     js_path = os.path.join(host_path, "js")
     with open(os.path.join(js_path, f"{module_name}_blocks.js"), "w") as block_file:

@@ -1,36 +1,39 @@
-Blockly.defineBlocksWithJsonArray([{
-    "type": "back",
-    "message0": 'length of %1',
-    "args0": [
-        {
-            "type": "input_value",
-            "name": "distance",
-            "check": "float"
-        }
-    ],
-    "output": null,
-    "colour": 160,
-    "tooltip": "Returns number of letters in the provided text.",
-    "helpUrl": "http://www.w3schools.com/jsref/jsref_length_string.asp"
-}]);
-var toolbox = {
-    "kind": "flyoutToolbox",
+Blockly.defineBlocksWithJsonArray(block_definitions);
+
+var toolbox_json = {
+    "kind": "categoryToolbox",
     "contents": [
         {
-            "kind": "block",
-            "type": "controls_if"
+            "kind": "category",
+            "name": "Basic",
+            "contents": [
+                {
+                    "kind": "block",
+                    "type": "controls_if"
+                },
+                {
+                    "kind": "block",
+                    "type": "controls_whileUntil"
+                }
+            ]
         },
+        toolbox_data,
         {
-            "kind": "block",
-            "type": "controls_whileUntil"
-        },
-        {
-            "kind": "block",
-            "type": "back"
+            "kind": "category",
+            "name": "Import python module",
+            "toolboxitemid": "import_module_btn"
         }
-    ]
-};
-Blockly.inject('blocklyDiv', {
+        
+    ]};
+var workspace = Blockly.inject('blocklyDiv', {
     trashcan: true,
-    toolbox:toolbox
+    toolbox:toolbox_json
 })
+var toolbox = workspace.getToolbox()
+var category_div = toolbox.getToolboxItemById("import_module_btn").getDiv();
+
+
+category_div.addEventListener("click", function(e) {
+    add_module_modal = $("#import_module_modal")
+    add_module_modal.modal("show")
+});
