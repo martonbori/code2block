@@ -48,8 +48,8 @@ class App:
             self.lsp_client.did_open(self.document)
 
     def update_file(self):
-        with open(self.document_path, "w") as file:
-            file.write(self.document.text)
+        #with open(self.document_path, "w") as file:
+        #    file.write(self.document.text)
 
         self.document.version += 1
         versioned_id = VersionedTextDocumentIdentifier(
@@ -121,7 +121,12 @@ class App:
         self.document.text = f"import {module_name}"
         self.update_file()
         completion_list = self.find_symbols(module_name)
+
+        # Remove private items
+        completion_list = [item for item in completion_list if not item.label.startswith("_")]
         print(f"Found {len(completion_list)} symbols")
+
+        # Find signatures
         signature_data = {}
         for idx, completion_item in enumerate(completion_list):
             label = completion_item.label
@@ -132,8 +137,8 @@ class App:
             signature_data[label] = signatures
 
         return block_factory.generate_blocks(module_name=module_name,
-                                      completion_list=completion_list,
-                                      signature_data=signature_data)
+                                             completion_list=completion_list,
+                                             signature_data=signature_data)
 
 
     def exit(self):
