@@ -28,20 +28,23 @@ def generate_function_block(module_name, completion_item, method_signatures):
         tooltip=completion_item.documentation)
 
     # TODO: Support multiple signatures
-    if method_signatures:
+    if method_signatures and method_signatures[0].parameters:
         signature = method_signatures[0]
         args = []
-        if signature.parameters:
-            arg_strs = []
-            for idx, param in enumerate(signature.parameters):
-                args.append(BlockArg(
-                    type="input_value",
-                    name=param.label,
-                    check=None))
-                arg_strs.append(f"{param.label} = %{idx + 1}")
-            label = re.sub("\(.*\)", f"({' , '.join(arg_strs)})", label)
+        arg_strs = []
+        message = block.message0
+        for idx, param in enumerate(signature.parameters):
+            args.append(BlockArg(
+                type="input_value",
+                name=param.label,
+                check=None))
+            arg_strs.append(f"{param.label} = %{idx + 1}")
+        if re.search("\(.*\)",block.message0):
+            message = re.sub("\(.*\)", f"({' , '.join(arg_strs)})", message)
+        else:
+            message += f"({' , '.join(arg_strs)})"
         block.args0 = args
-        block.message0 = label
+        block.message0 = message
     return name, block
 
 
