@@ -12,11 +12,48 @@ class BlockArg:
 
 class Block:
 
-    def __init__(self, type: string, message0: string, args0: List[BlockArg], colour: int, previousStatement: string = None, nextStatement: string = None, tooltip: string = None):
-        self.type = type
-        self.message0 = message0
-        self.args0 = args0
-        self.colour = colour
+    def __init__(self,
+                 name: string,
+                 label: string,
+                 tooltip: string = None):
+        self.type = name
+        self.message0 = label
+        self.colour = 0
+        self.tooltip = tooltip
+
+
+class FunctionBlock(Block):
+
+    def __init__(self,
+                 name: string,
+                 label: string,
+                 tooltip: string = None,
+                 args: List[BlockArg] = None,
+                 output_type: string = None,
+                 previousStatement: string = None,
+                 nextStatement: string = None):
+        super().__init__(name, label, tooltip)
+        if not args:
+            args = []
+        self.args0 = args
+        self.colour = 160
+        self.output = output_type
         self.previousStatement = previousStatement
         self.nextStatement = nextStatement
-        self.tooltip = tooltip
+
+class MethodBlock(Block):
+
+    def __init__(self,
+                 name: string,
+                 label: string,
+                 tooltip: string = None,
+                 args: List[BlockArg] = None,
+                 previousStatement: string = None,
+                 nextStatement: string = None):
+        super().__init__(name, label, tooltip)
+        if not args:
+            args = []
+        self.args0 = args
+        self.colour = 140
+        self.previousStatement = previousStatement
+        self.nextStatement = nextStatement

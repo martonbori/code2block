@@ -2,7 +2,8 @@ import json
 import re
 from typing import List
 from sansio_lsp_client import CompletionItem, SignatureInformation, CompletionItemKind
-from src.code2block.classes.block import Block, BlockArg
+from src.code2block.classes.block import Block, BlockArg, FunctionBlock
+
 
 def generate_method_block(module_name, completion_item, method_signatures):
     # TODO: generate text value block
@@ -17,14 +18,13 @@ def generate_text_block(module_name, completion_item, method_signatures):
 def generate_function_block(module_name, completion_item, method_signatures):
     label = completion_item.label
     name = f"{module_name}_{label}".replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
-
-    block = Block(
-        type=name,
-        message0=f"{module_name}.{label}",
-        args0=[],
-        colour=160,
-        previousStatement=None,
-        nextStatement=None,
+    message = f"{module_name}.{label}"
+    if not module_name:
+        message = label
+    block = FunctionBlock(
+        name=name,
+        label=message,
+        args=[],
         tooltip=completion_item.documentation)
 
     # TODO: Support multiple signatures
@@ -32,7 +32,7 @@ def generate_function_block(module_name, completion_item, method_signatures):
         signature = method_signatures[0]
         args = []
         arg_strs = []
-        message = block.message0
+
         for idx, param in enumerate(signature.parameters):
             args.append(BlockArg(
                 type="input_value",
@@ -193,9 +193,12 @@ def generate_blocks(module_name: str,
                     signature_data: dict[str, List[SignatureInformation]]
                     ):
     """ Generate blocks from symbols """
+    category_name = module_name
+    if not module_name:
+        category_name = "core"
     toolbox_category = {
         "kind": "category",
-        "name": module_name,
+        "name": category_name,
         "contents": []
     }
     blocks = []

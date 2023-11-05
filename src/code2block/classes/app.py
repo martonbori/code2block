@@ -105,10 +105,15 @@ class App:
         self.find_symbols_rec(f"{root_symbol}.{completion_items.pop().label}")
 
     def find_symbols(self, root_symbol) -> List[CompletionItem]:
-        self.document.text += f"\n{root_symbol}."
+        col = 0
+        if root_symbol:
+            self.document.text += f"\n{root_symbol}."
+            col = len(root_symbol + ".")
+        else:
+            self.document.text += f"\n"
         line_count = len(self.document.text.split('\n'))
         self.update_file()
-        return self.completion_request(line_count-1, len(root_symbol + "."))
+        return self.completion_request(line_count-1, col)
 
     def get_signature_data(self, module_name, method) -> List[SignatureInformation] | None:
         signature_data = self.signature_help(module_name, method)
@@ -118,8 +123,10 @@ class App:
 
     def generate_blocks(self, module_name) -> dict:
         """ Find symbols in module """
-        self.document.text = f"import {module_name}"
-        self.update_file()
+        if module_name:
+            self.document.text = f"import {module_name}"
+            self.update_file()
+
         completion_list = self.find_symbols(module_name)
 
         # Remove private items
