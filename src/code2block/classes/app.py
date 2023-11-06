@@ -1,16 +1,12 @@
-import json
 import os
 import pathlib
-import subprocess
 from typing import List
-from urllib.parse import unquote, urlparse
 
 from sansio_lsp_client import WorkspaceFolder, TextDocumentItem, VersionedTextDocumentIdentifier, \
     TextDocumentContentChangeEvent, TextDocumentIdentifier, TextDocumentPosition, Position, SignatureHelp, \
     SymbolInformation, DocumentSymbol, CompletionItem, SignatureInformation
 
 from src.code2block.classes import block_factory
-from src.code2block.classes.block import BlockArg, Block
 from src.code2block.classes.lsp_client.lsp_client import LspClient
 
 
