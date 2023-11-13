@@ -1,61 +1,69 @@
 
 /******* Blockly functions *******/
 
-function init_blockly() {
-    var toolbox_json = {
-        "kind": "categoryToolbox",
-        "contents": [
-            {
-                "kind": "category",
-                "name": "Basic",
-                "contents": [
-                    {
-                        "kind": "block",
-                        "type": "controls_if"
-                    },
-                    {
-                        "kind": "block",
-                        "type": "controls_whileUntil"
-                    }
-                ]
-            },
-            {
-                "kind": "category",
-                "name": "Import python module",
-                "toolboxitemid": "import_module_btn",
-                "disabled": "True"
+function init_editor() {
+    var editor = new BlockMirror({
+        'container': document.getElementById('blockmirror-editor'),
+        'blocklyMediaPath': '../js/lib/blockly/media/',
+        
+        //'height': '2000px'
+    });
+    editor.addChangeListener(function (event) {
+        console.log('Change! Better save:', event)
+    });
+    editor.setCode('a = 0\nb=0\nprint(b)');
+
+    Sk.configure({
+        __future__: Sk.python3,
+        read: function (filename) {
+            if (Sk.builtinFiles === undefined ||
+                Sk.builtinFiles["files"][filename] === undefined) {
+                throw "File not found: '" + filename + "'";
             }
-            
-        ]
-    };
-    var w = Blockly.inject('blocklyDiv', {
-        trashcan: true,
-        toolbox:toolbox_json
+            return Sk.builtinFiles["files"][filename];
+        }
     });
+
+    $('#go').click(function () {
+        alert('Starting!')
+        var filename = 'main';
+        var code = `import pedal`;
+        //console.time('Run');
+        Sk.importMainWithBody(filename, false, code, true).$d;
+        //console.timeEnd('Run');
+        alert('Done!')
+    });
+    
+    add_category_button = {
+        "kind": "category",
+        "name": "Import python module",
+        "toolboxitemid": "import_module_btn",
+        "disabled": "True"
+    }
+    add_category(null, add_category_button, null, -1)
+    
     $("#import_module_btn").on("click", function() {
         console.log("click")
         add_module_modal = $("#import_module_modal")
         add_module_modal.modal("show")
     });
-
-    return w
 }
 
-function updateToolbox(workspace, toolbox_json) {
-    workspace.updateToolbox(toolbox_json)
-    $("#import_module_btn").on("click", function() {
-        console.log("click")
-        add_module_modal = $("#import_module_modal")
-        add_module_modal.modal("show")
-    });
-}
+function add_category(blocks, category, code_generators, idx=-2) {
+    /** Add blocks to Workspace **/
+    if(blocks) {
+        Blockly.defineBlocksWithJsonArray(blocks);
+        Object.assign(Blockly.Blocks, blocks)    
+    }
 
-function add_category(workspace, blocks, category, code_generators) {
-    Blockly.defineBlocksWithJsonArray(blocks);
-    toolbox = workspace.getToolbox().toolboxDef_
-    console.log(toolbox)
-    toolbox["contents"].splice(-1,0, category)
-    updateToolbox(workspace, toolbox)
+    /** Update Toolbox **/
+    toolbox = Blockly.getMainWorkspace().options.languageTree
+    toolbox_json = Blockly.utils.toolbox.convertToolboxDefToJson(toolbox)
+    if (idx < 0) {
+        idx = toolbox_json["contents"].length + 1 + idx
+    }
+    toolbox_json["contents"].splice(idx,0, category)
+    Blockly.getMainWorkspace().updateToolbox(toolbox_json);
 }
 
 
