@@ -1,17 +1,18 @@
 import re
 
-from src.code2block.classes.models.block import BlockArg, Block
-from src.code2block.classes.models.block_category import BlockCategory
-from src.code2block.classes.models.function_block import FunctionBlock
-from src.code2block.classes.models.method_block import MethodBlock
+from src.code2block.classes.models.blocks.block import BlockArg, Block
+from src.code2block.classes.models.blocks.class_block import ClassBlock
+from src.code2block.classes.models.blocks.function_block import FunctionBlock
+from src.code2block.classes.models.blocks.method_block import MethodBlock
 
 
-def generate_method_block(module_name, completion_item, method_signatures):
+def generate_method_block(module_path, completion_item, method_signatures):
     label = completion_item.label
-    name = f"{module_name}_{label}".replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
-    message = f"{module_name}.{label}"
-    if not module_name:
-        message = label
+    name = f"{label}".replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
+    message = f"{label}"
+    if module_path:
+        name = f"{module_path}_{name}"
+        message = f"{module_path}.{message}"
 
     block = MethodBlock(
         name=name,
@@ -44,12 +45,13 @@ def generate_text_block(module_name, completion_item, method_signatures):
     raise NotImplementedError("Block type not implemented: TEXT")
 
 
-def generate_function_block(module_name, completion_item, signatures) -> (str, Block):
+def generate_function_block(module_path, completion_item, signatures) -> (str, Block):
     label = completion_item.label
-    name = f"{module_name}_{label}".replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
-    message = f"{module_name}.{label}"
-    if not module_name:
-        message = label
+    name = f"{label}".replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
+    message = f"{label}"
+    if module_path:
+        name = f"{module_path}_{name}"
+        message = f"{module_path}.{message}"
     block = FunctionBlock(
         name=name,
         label=message,
