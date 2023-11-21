@@ -1,6 +1,7 @@
 from typing import List
 from sansio_lsp_client import CompletionItem, SignatureInformation, CompletionItemKind
 from src.code2block.classes import block_generators
+from src.code2block.classes.models.blocks.import_block import ImportBlock
 
 generators = {
     CompletionItemKind.TEXT: block_generators.generate_text_block,
@@ -65,7 +66,8 @@ def generate_blocks(module_name: str,
             })
         except NotImplementedError as e:
             print(e)
-
+    import_block = ImportBlock(module_name)
+    blocks.append(import_block)
     ret = {
         "blocks": blocks,
         "toolbox_category": module_category,

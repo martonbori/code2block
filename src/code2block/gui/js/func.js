@@ -11,7 +11,6 @@ function init_editor() {
     editor.addChangeListener(function (event) {
         console.log('Change! Better save:', event)
     });
-    editor.setCode('a = 0\nb=0\nprint(b)');
 
     Sk.configure({
         __future__: Sk.python3,
@@ -96,21 +95,37 @@ function add_category(module_name, blocks, category_json, idx=-2) {
         BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module_name] = {}
         category_contents = []
         blocks.forEach(block => {
-            block_name = block["name"]
-            args = []
-            block["args"].forEach(arg => {
-                args.push(arg.type)
-            })
-            console.log(block)
-            BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module_name][block_name] = {
-                "returns": block["returns"],
-                "simple": args,
-                "full": args,
-                "message": block["message"],
-                "colour": block["colour"]
-            };
-            block_xml = getFunctionBlock(block_name,{},module_name)
-            category_contents.push({kind:"block", type:"ast_Call", blockxml:Blockly.utils.xml.textToDom(block_xml)})
+            console.log(block.type)
+            if (block.type == "ast_Import") {
+                let argumentsMutation = {
+                    "@names": 1,
+                    "regular": [true]
+                };
+                let fields = {
+                    "NAME0": block.module_name,
+                    "MODULE": block.module_name
+                }
+                let block_xml = BlockMirrorTextToBlocks.create_block("ast_Import", null, fields,{}, {inline: true}, argumentsMutation);
+                console.log(block_xml)
+                category_contents.push({kind:"block", type:"ast_Call", blockxml:block_xml})
+            }
+            else {
+                block_name = block["name"]
+                args = []
+                block["args"].forEach(arg => {
+                    args.push(arg.type)
+                })
+                console.log(block)
+                BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module_name][block_name] = {
+                    "returns": block["returns"],
+                    "simple": args,
+                    "full": args,
+                    "message": block["message"],
+                    "colour": block["colour"]
+                };
+                block_xml = getFunctionBlock(block_name,{},module_name)    
+                category_contents.push({kind:"block", type:"ast_Call", blockxml:Blockly.utils.xml.textToDom(block_xml)})
+            }
         });    
         category_json["contents"] = category_contents
     }
