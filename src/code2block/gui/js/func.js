@@ -72,11 +72,7 @@ function init_editor() {
         }
     )
 
-    $("#import_module_btn").on("click", function() {
-        console.log("click")
-        add_module_modal = $("#import_module_modal")
-        add_module_modal.modal("show")
-    });
+
 
 }
 
