@@ -42,11 +42,6 @@ function init_editor() {
     }
     add_category(null, null,add_category_button, -1)
     
-    $("#import_module_btn").on("click", function() {
-        console.log("click")
-        add_module_modal = $("#import_module_modal")
-        add_module_modal.modal("show")
-    });
 
 
     
@@ -77,35 +72,24 @@ function init_editor() {
             }
         }
     )
-    toolbox = Blockly.getMainWorkspace().options.languageTree
-    test_block_xml = '<block type="ast_Call" line_number="1" inline="true"><mutation arguments="1" returns="false" parameters="true" method="false" name="turtle.forward" message="move turtle forward by" premessage="" colour="140" module="turtle"><arg name="UNKNOWN_ARG:0"></arg></mutation><value name="ARG0"><block type="ast_Num" line_number="1"><field name="NUM">50</field></block></value></block>'
-    console.log(toolbox)
-    
-    BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['json'] = {}
-    BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['json']['load'] = {
-        "returns": true,
-        "simple": ['fp','cls','object_hook','parse_float', 'parse_int', 'parse_constant', 'object_pairs_hook','kwds'],
-        "message": "json.load",
-        "colour": BlockMirrorTextToBlocks.COLOR.PLOTTING
-    };
-    block_xml = getFunctionBlock('load',{},'json')
-    
-    test_category = {
-        "kind": "category",
-        "name": "Test",
-        "contents": [{kind:"block", type:"ast_Call", blockxml:Blockly.utils.xml.textToDom(block_xml)}]
-    }
-    //console.log(test_block_json)
-    add_category("json", [{"name":"load", "args": ['a','b']}])
+
+    $("#import_module_btn").on("click", function() {
+        console.log("click")
+        add_module_modal = $("#import_module_modal")
+        add_module_modal.modal("show")
+    });
 
 }
 
 function add_category(module_name, blocks, category_json, idx=-2) {
     /** Add blocks to Workspace **/
+    console.log(category_json)
+    console.log(blocks)
+
     if (!category_json) {
         category_json  = {
             "kind": "category",
-            "name": "Test",
+            "name": module_name,
         }
     }
     if (blocks) {
@@ -113,11 +97,17 @@ function add_category(module_name, blocks, category_json, idx=-2) {
         category_contents = []
         blocks.forEach(block => {
             block_name = block["name"]
+            args = []
+            block["args"].forEach(arg => {
+                args.push(arg.type)
+            })
+            console.log(block)
             BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module_name][block_name] = {
-                "returns": true,
-                "simple": block["args"],
-                "message": module_name + "." + block_name,
-                "colour": BlockMirrorTextToBlocks.COLOR.PLOTTING
+                "returns": block["returns"],
+                "simple": args,
+                "full": args,
+                "message": block["message"],
+                "colour": block["colour"]
             };
             block_xml = getFunctionBlock(block_name,{},module_name)
             category_contents.push({kind:"block", type:"ast_Call", blockxml:Blockly.utils.xml.textToDom(block_xml)})

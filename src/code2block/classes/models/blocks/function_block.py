@@ -7,18 +7,15 @@ from src.code2block.classes.models.blocks.block import Block, BlockArg
 class FunctionBlock(Block):
 
     def __init__(self,
-                 name: string,
-                 label: string,
-                 tooltip: string = None,
+                 name: str,
+                 message: str,
+                 simple: str = "",
+                 tooltip: str = None,
                  args: List[BlockArg] = None,
-                 output_type: string = None,
-                 previousStatement: string = None,
-                 nextStatement: string = None):
-        super().__init__(name, label, tooltip)
+                 returns: bool = False):
+        super().__init__("ast_Call", name, message, simple, tooltip)
         if not args:
             args = []
-        self.args0 = args
+        self.args = args
         self.colour = 160
-        self.output = output_type
-        self.previousStatement = previousStatement
-        self.nextStatement = nextStatement
+        self.returns = returns

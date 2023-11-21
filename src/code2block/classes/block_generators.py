@@ -1,3 +1,4 @@
+import json
 import re
 
 from src.code2block.classes.models.blocks.block import BlockArg, Block
@@ -7,16 +8,19 @@ from src.code2block.classes.models.blocks.method_block import MethodBlock
 
 
 def generate_method_block(module_path, completion_item, method_signatures):
-    label = completion_item.label
-    name = f"{label}".replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
-    message = f"{label}"
+    label: str = completion_item.label
+    id = label.replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
+    name = label.replace('')
+    simple = re.sub('\(.*\)', '()', label)
+    message = simple
     if module_path:
-        name = f"{module_path}_{name}"
-        message = f"{module_path}.{message}"
+        context_end = label.rfind('.')
+        name = label[context_end:]
 
     block = MethodBlock(
         name=name,
-        label=message,
+        message=message,
+        simple=simple,
         args=[],
         tooltip=completion_item.documentation)
 
@@ -31,7 +35,7 @@ def generate_method_block(module_path, completion_item, method_signatures):
                 name=param.label,
                 check=None))
             arg_strs.append(f"{param.label} = %{idx + 1}")
-        if re.search("\(.*\)", block.message0):
+        if re.search("\(.*\)", block.message):
             message = re.sub("\(.*\)", f"({' , '.join(arg_strs)})", message)
         else:
             message += f"({' , '.join(arg_strs)})"
@@ -46,15 +50,19 @@ def generate_text_block(module_name, completion_item, method_signatures):
 
 
 def generate_function_block(module_path, completion_item, signatures) -> (str, Block):
-    label = completion_item.label
-    name = f"{label}".replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
-    message = f"{label}"
+    label: str = completion_item.label
+    id = label.replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
+    bracket_start = label.rfind('(')
+    name = label[:bracket_start]
+    simple = name
+    message = name
     if module_path:
-        name = f"{module_path}_{name}"
+        simple = f"{module_path}.{simple}"
         message = f"{module_path}.{message}"
     block = FunctionBlock(
         name=name,
-        label=message,
+        message=message,
+        simple=simple,
         args=[],
         tooltip=completion_item.documentation)
 
@@ -62,20 +70,13 @@ def generate_function_block(module_path, completion_item, signatures) -> (str, B
     if signatures and signatures[0].parameters:
         signature = signatures[0]
         args = []
-        arg_strs = []
 
         for idx, param in enumerate(signature.parameters):
             args.append(BlockArg(
                 type="input_value",
                 name=param.label,
                 check=None))
-            arg_strs.append(f"{param.label} = %{idx + 1}")
-        if re.search("\(.*\)",block.message0):
-            message = re.sub("\(.*\)", f"({' , '.join(arg_strs)})", message)
-        else:
-            message += f"({' , '.join(arg_strs)})"
-        block.args0 = args
-        block.message0 = message
+        block.args = args
     return name, block
 
 
@@ -95,6 +96,7 @@ def generate_variable_block(module_name, completion_item, method_signatures):
 
 
 def generate_class_block(module_path, completion_item, signatures):
+    raise NotImplementedError("Block type not implemented: CLASS")
     label = completion_item.label
     name = f"{label}".replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
     message = f"{label}"

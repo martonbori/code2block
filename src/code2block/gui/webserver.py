@@ -32,6 +32,7 @@ def add_module():
     module_name = request.form["module_name"]
     ret = {}
     blocks_data = app.generate_blocks(module_name)
+    ret["module_name"] = module_name
     ret["blocks"] = blocks_data["blocks"]
     ret["category"] = blocks_data["toolbox_category"]
     ret["generators"] = blocks_data["code_generators"]
