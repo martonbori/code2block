@@ -27,7 +27,7 @@ def get_js_file(subpath):
     else:
         return js_file
 
-@webapp.post("/add_module")
+@webapp.post("/get_blocks")
 def add_module():
     module_name = request.form["module_name"]
     ret = {}
@@ -35,7 +35,6 @@ def add_module():
     ret["module_name"] = module_name
     ret["blocks"] = blocks_data["blocks"]
     ret["category"] = blocks_data["toolbox_category"]
-    ret["generators"] = blocks_data["code_generators"]
     return json.dumps(ret, default=lambda o: o.__dict__)
 
 

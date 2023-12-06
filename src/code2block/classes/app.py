@@ -1,6 +1,6 @@
 import os
 import pathlib
-from typing import List
+from typing import List, Tuple
 
 from sansio_lsp_client import WorkspaceFolder, TextDocumentItem, VersionedTextDocumentIdentifier, \
     TextDocumentContentChangeEvent, TextDocumentIdentifier, TextDocumentPosition, Position, SignatureHelp, \
@@ -62,19 +62,10 @@ class App:
         document_symbols = self.lsp_client.documentSymbol(text_document=doc_id)
         return document_symbols.result
 
-    def signature_help(self, module_name, method) -> SignatureHelp:
-        import_text = f"import {module_name}"
-        method_text = f"{module_name}.{method}"
-        index = method_text.find("(")
-        if index == -1:
-            method_text += "("
-            index = method_text.find("(")
-        self.document.text = f"{import_text}\n{method_text}"
-        self.update_file()
-
+    def signature_help(self, line, character) -> SignatureHelp:
         text_document_position = TextDocumentPosition(
             textDocument=TextDocumentIdentifier(uri=self.document.uri),
-            position=Position(line=1, character=index+1)
+            position=Position(line=1, character=character)
         )
         signatures = self.lsp_client.signatureHelp(text_document_position)
         return signatures
@@ -117,27 +108,46 @@ class App:
             return None
         return signature_data.signatures
 
-    def generate_blocks(self, module_name) -> dict:
-        """ Find symbols in module """
+    def find_signatures(self, module_name, symbol_labels):
+        signature_data = {}
+        for idx, label in enumerate(symbol_labels):
+            print(f"Get signature data [{idx + 1}/{len(symbol_labels)}] ({label})")
+            import_text = f"import {module_name}"
+            method_text = f"{module_name}.{label}"
+            index = method_text.find("(")
+            if index == -1:
+                method_text += "("
+                index = method_text.find("(")
+            self.document.text = f"{import_text}\n{method_text}"
+            self.update_file()
+            signatures = self.signature_help(line=1, character=index+1).signatures
+            if not signatures:
+                continue
+            signature_data[label] = signatures
+        return signature_data
+
+    def discover_module_api(self, module_name):
+        # import module
         if module_name:
             self.document.text = f"import {module_name}"
             self.update_file()
 
+        # Find module symbols
         completion_list = self.find_symbols(module_name)
 
         # Remove private items
-        completion_list = [item for item in completion_list if not item.label.startswith("_")]
+        completion_list = \
+            [item for item in completion_list if not item.label.startswith("_")]
         print(f"Found {len(completion_list)} symbols")
 
         # Find signatures
-        signature_data = {}
-        for idx, completion_item in enumerate(completion_list):
-            label = completion_item.label
-            print(f"Get signature data [{idx+1}/{len(completion_list)}] ({label})")
-            signatures = self.signature_help(module_name, label).signatures
-            if not signatures:
-                continue
-            signature_data[label] = signatures
+        symbol_labels = [item.label for item in completion_list]
+        signature_data = self.find_signatures(module_name, symbol_labels)
+
+        return completion_list, signature_data
+
+    def generate_blocks(self, module_name) -> dict:
+        completion_list, signature_data = self.discover_module_api(module_name)
 
         return block_factory.generate_blocks(module_name=module_name,
                                              completion_list=completion_list,

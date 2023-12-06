@@ -31,12 +31,11 @@ generators = {
     CompletionItemKind.TYPEPARAMETER: block_generators.generate_type_parameter_block,
 }
 
-
 def generate_blocks(module_name: str,
                     completion_list: List[CompletionItem],
                     signature_data: dict[str, List[SignatureInformation]]
                     ):
-    """ Generate blocks from symbols """
+    # Define block category
     category_name = module_name
     if not module_name:
         category_name = "core"
@@ -45,8 +44,9 @@ def generate_blocks(module_name: str,
         "name": category_name,
         "contents": []
     }
+
+    # Define blocks
     blocks = []
-    code_generators = []
     for completion_item in completion_list:
         label = completion_item.label
         kind = completion_item.kind
@@ -60,18 +60,13 @@ def generate_blocks(module_name: str,
             print(f"{name} -> {block.__dict__}")
             blocks.append(block)
             module_category["contents"].append({"kind": "block", "type": name})
-            code_generators.append({
-                "block_type": name,
-                "code": label
-            })
-        except NotImplementedError as e:
-            print(e)
+        except NotImplementedError:
+            print(f"Block type not implemented: {kind}")
     import_block = ImportBlock(module_name)
     blocks.append(import_block)
     ret = {
         "blocks": blocks,
         "toolbox_category": module_category,
-        "code_generators": code_generators
     }
     return ret
 

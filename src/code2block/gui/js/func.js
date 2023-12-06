@@ -1,11 +1,12 @@
 
 /******* Blockly functions *******/
+var editor;
 
 function init_editor() {
-    var editor = new BlockMirror({
+    editor = new BlockMirror({
         'container': document.getElementById('blockmirror-editor'),
         'blocklyMediaPath': '../js/lib/blockly/media/',
-        
+        'toolbox':'normal'
         //'height': '2000px'
     });
     editor.addChangeListener(function (event) {
@@ -31,16 +32,7 @@ function init_editor() {
         Sk.importMainWithBody(filename, false, code, true).$d;
         //console.timeEnd('Run');
         alert('Done!')
-    });
-    
-    add_category_button = {
-        "kind": "category",
-        "name": "Import python module",
-        "toolboxitemid": "import_module_btn",
-        "disabled": "True"
-    }
-    add_category(null, null,add_category_button, -1)
-    
+    });    
 
 
     
@@ -76,22 +68,15 @@ function init_editor() {
 
 }
 
-function add_category(module_name, blocks, category_json, idx=-2) {
+function add_category(module_name, blocks, idx=-2) {
     /** Add blocks to Workspace **/
-    console.log(category_json)
     console.log(blocks)
 
-    if (!category_json) {
-        category_json  = {
-            "kind": "category",
-            "name": module_name,
-        }
-    }
     if (blocks) {
         BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module_name] = {}
         category_contents = []
         blocks.forEach(block => {
-            console.log(block.type)
+            var block_code = ""
             if (block.type == "ast_Import") {
                 let argumentsMutation = {
                     "@names": 1,
@@ -103,36 +88,36 @@ function add_category(module_name, blocks, category_json, idx=-2) {
                 }
                 let block_xml = BlockMirrorTextToBlocks.create_block("ast_Import", null, fields,{}, {inline: true}, argumentsMutation);
                 console.log(block_xml)
-                category_contents.push({kind:"block", type:"ast_Call", blockxml:block_xml})
+                block_code = block.message
             }
             else {
                 block_name = block["name"]
+                block_code = block["message"] + "("
                 args = []
                 block["args"].forEach(arg => {
                     args.push(arg.type)
+                    block_code += "___,"
                 })
-                console.log(block)
+                block_code = block_code.replace(/.$/,")")
                 BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module_name][block_name] = {
                     "returns": block["returns"],
-                    "simple": args,
+                    "simple": [],
                     "full": args,
                     "message": block["message"],
                     "colour": block["colour"]
                 };
-                block_xml = getFunctionBlock(block_name,{},module_name)    
-                category_contents.push({kind:"block", type:"ast_Call", blockxml:Blockly.utils.xml.textToDom(block_xml)})
             }
+            category_contents.push(block_code)
         });    
-        category_json["contents"] = category_contents
     }
-    /** Update Toolbox **/
-    toolbox = Blockly.getMainWorkspace().options.languageTree
-    toolbox_json = Blockly.utils.toolbox.convertToolboxDefToJson(toolbox)
-    if (idx < 0) {
-        idx = toolbox_json["contents"].length + 1 + idx
-    }
-    toolbox_json["contents"].splice(idx,0, category_json)
-    Blockly.getMainWorkspace().updateToolbox(toolbox_json);
+    BlockMirrorBlockEditor.prototype.TOOLBOXES["normal"].push({name: module_name, colour:"CONTROL", blocks: category_contents})
+    document.getElementById('blockmirror-editor').innerHTML = ""
+    editor = new BlockMirror({
+        'container': document.getElementById('blockmirror-editor'),
+        'blocklyMediaPath': '../js/lib/blockly/media/',
+        'toolbox':'normal'
+        //'height': '2000px'
+    });
 }
 
 

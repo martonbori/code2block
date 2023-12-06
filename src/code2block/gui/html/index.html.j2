@@ -31,6 +31,11 @@
 </head>
 <body>
 <div class="container">
+    <br/>
+    <br/>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_module_modal">Import python module</button>
+    <br/>
+    <br/>
     <div class="row">
         <div id="blockmirror-editor" class="col-12" style="height: 700px"></div>
     </div>
@@ -38,7 +43,7 @@
 <div class="modal fade" id="import_module_modal" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" id="import_module_modal_form" action="/add_module">   
+            <form method="post" id="import_module_modal_form" action="/get_blocks">
                 <div class="modal-header">
                     <h5 class="modal-title">Import module</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

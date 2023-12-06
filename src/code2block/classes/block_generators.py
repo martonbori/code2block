@@ -53,7 +53,13 @@ def generate_function_block(module_path, completion_item, signatures) -> (str, B
     label: str = completion_item.label
     id = label.replace('(', '_').replace(')', '_').replace(' ', '_').replace(',', '_')
     bracket_start = label.rfind('(')
-    name = label[:bracket_start]
+    print(f"label: {label}")
+    print(f"bracket_start: {bracket_start}")
+    if bracket_start > 0:
+        name = label[:bracket_start]
+    else:
+        name = label
+    print(f"name: {name}")
     simple = name
     message = name
     if module_path:
