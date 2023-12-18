@@ -9,14 +9,22 @@ class BlockArg:
         self.name = name
         self.check = check
 
+range
 
 class Block:
 
     def __init__(self,
-                 name: string,
-                 label: string,
-                 tooltip: string = None):
-        self.type = name
-        self.message0 = label
+                 block_type: str,
+                 name: str,
+                 message: str,
+                 simple: str = "",
+                 tooltip: str = None):
+        self.type = block_type
+        self.name = name
+        self.message = message
+        if simple:
+            self.simple = simple
+        else:
+            self.simple = self.message
         self.colour = 0
         self.tooltip = tooltip

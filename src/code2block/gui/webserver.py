@@ -3,12 +3,11 @@ import os
 
 from flask import Flask, abort, request
 
-from src.code2block.classes.app import App
+from src.code2block.classes.code2blockapp import Code2BlockApp
 
 webapp = Flask(__name__)
 webapp.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-app: App
 host_path = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -27,18 +26,17 @@ def get_js_file(subpath):
     else:
         return js_file
 
-@webapp.post("/add_module")
+@webapp.post("/get_blocks")
 def add_module():
     module_name = request.form["module_name"]
     ret = {}
+    app = Code2BlockApp()
     blocks_data = app.generate_blocks(module_name)
+    ret["module_name"] = module_name
     ret["blocks"] = blocks_data["blocks"]
     ret["category"] = blocks_data["toolbox_category"]
-    ret["generators"] = blocks_data["code_generators"]
     return json.dumps(ret, default=lambda o: o.__dict__)
 
 
-def start_webserver(app_ref):
-    global app
-    app = app_ref
+def start_webserver():
     webapp.run()

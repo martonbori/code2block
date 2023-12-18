@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve myapp
+After=network.target
+
+[Service]
+User=vagrant
+Group=vagrant
+WorkingDirectory=/vagrant
+Environment="PATH=/usr/bin"
+ExecStart=/usr/local/bin/gunicorn --preload --workers 3 --bind 127.0.0.1:8000 main:webapp --error-logfile "/vagrant/error.log" --enable-stdio-inheritance --log-level "debug"
+
+[Install]
+WantedBy=multi-user.target
