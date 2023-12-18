@@ -6,7 +6,7 @@ This is a block and text based programming environment powered by [BlockMirror](
 
 ## Prerequisites
 
-- Install [VirtualBoxg](https://www.virtualbox.org/wiki/Downloads)
+- Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 - Install [Vagrant](https://developer.hashicorp.com/vagrant/install?product_intent=vagrant)
 
 ## Run VM
