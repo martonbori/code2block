@@ -13,4 +13,5 @@ This is a block and text based programming environment powered by [BlockMirror](
 
 1. Clone repository
 2. Navigate to root directory and type `vagrant up`
-3. The code2block interface is available on the host computer on http://127.0.0.1:8080
+3. Wait for the VM to download and set up
+4. The code2block interface is available on the host computer on http://127.0.0.1:8080
