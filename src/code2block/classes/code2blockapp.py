@@ -1,7 +1,10 @@
 import os
 import pathlib
+import subprocess
+import sys
 from typing import List, Tuple
 
+import pkg_resources
 from sansio_lsp_client import WorkspaceFolder, TextDocumentItem, VersionedTextDocumentIdentifier, \
     TextDocumentContentChangeEvent, TextDocumentIdentifier, TextDocumentPosition, Position, SignatureHelp, \
     SymbolInformation, DocumentSymbol, CompletionItem, SignatureInformation
@@ -10,21 +13,31 @@ from src.code2block.classes import block_factory
 from src.code2block.classes.lsp_client.lsp_client import LspClient
 
 
-class App:
+class Code2BlockApp:
     document: TextDocumentItem
     document_path: os.PathLike
+    _instance = None
 
-    def __init__(self, lsp_server_command):
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Code2BlockApp, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self):
         self.lsp_client = LspClient(
-            lsp_server_command=lsp_server_command,
+            lsp_server_command=["sudo", "pylsp", "-v", "--log-file", os.path.join(os.getcwd(), "pylsp.log")],
             process_id=os.getpid(),
             root_uri="file:///D:/Egyetem/2023_tavasz/Szakdolgozat/Workspace",
             workspace_folders=[
                 WorkspaceFolder(uri="file://D:/Egyetem/2023_tavasz/Szakdolgozat/Workspace", name="test")],
             trace="off"
         )
+        self.open_file(os.path.join(os.getcwd(),"test.py"))
 
     def open_file(self, file_path):
+        if not os.path.exists(file_path):
+            file_ = open(file_path, "w")
+            file_.close()
         file_name, file_ext = os.path.splitext(file_path)
         self.document_path = file_path
         language_id = ""
@@ -147,12 +160,22 @@ class App:
         return completion_list, signature_data
 
     def generate_blocks(self, module_name) -> dict:
+        self.check_for_module(module_name)
         completion_list, signature_data = self.discover_module_api(module_name)
 
         return block_factory.generate_blocks(module_name=module_name,
                                              completion_list=completion_list,
                                              signature_data=signature_data)
 
-
+    def check_for_module(self, module_name):
+        installed_modules = {pkg.key for pkg in pkg_resources.working_set}
+        if module_name not in installed_modules:
+            print(f"Module not found: {module_name}")
+            print(f"Installing...")
+            try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", module_name])
+                print(f"Installation successful!")
+            except subprocess.CalledProcessError as e:
+                print(e)
     def exit(self):
         self.lsp_client.exit()
